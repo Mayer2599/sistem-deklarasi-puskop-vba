@@ -1,0 +1,721 @@
+Private Sub UserForm_Initialize()
+    ' Awalnya, hanya LblNAKket yang dapat diisi
+    LblNAKket.Enabled = True
+    LblTIket.Enabled = False
+    LblTMket.Enabled = False
+    LblTKket.Enabled = False
+    LblTKdstjket.Enabled = False
+    LblTKdbyrket.Enabled = False
+
+    ' Kosongkan semua TextBox
+    LblNAKket.Text = ""
+    LblTIket.Text = ""
+    LblTMket.Text = ""
+    LblTKket.Text = ""
+    LblTKdstjket.Text = ""
+    LblTKdbyrket.Text = ""
+
+    ' Kosongkan semua Label hasil pencarian
+    LblNAkey.Caption = ""
+    LblTLkey.Caption = ""
+    LblJKkey.Caption = ""
+    LblCUPkey.Caption = ""
+    LblNTPkey.Caption = ""
+    LblPin1key.Caption = ""
+    LblSim1key.Caption = ""
+    LblSol1key.Caption = ""
+    LblNAPket.Caption = ""
+    LblNASket.Caption = ""
+    LblNASolket.Caption = ""
+
+    ' Menampilkan semua label saat UserForm dimunculkan
+    LblDetPes.Visible = True
+    LblNAK.Visible = True
+    LblNA.Visible = True
+    LblTL.Visible = True
+    LblJK.Visible = True
+    LblCUP.Visible = True
+    LblNTP.Visible = True
+    LblTI.Visible = True
+    LblTM.Visible = True
+    LblUP.Visible = True
+    LblPin1.Visible = True
+    LblSim1.Visible = True
+    LblSol1.Visible = True
+    LblSK.Visible = True
+    LblTK.Visible = True
+    LblTKdstj.Visible = True
+    LblTKdbyr.Visible = True
+
+    ' Sembunyikan LblADit dan LblADitket
+    LblADit.Visible = False
+    LblADitket.Visible = False
+    LblADitket.Enabled = False
+
+    ' Kosongkan dan nonaktifkan semua checkbox
+    ResetCheckBoxes
+
+    ' Nonaktifkan tombol CBSimpan
+    CBSimpan.Enabled = False
+
+End Sub
+
+' Prosedur untuk mengosongkan dan menonaktifkan semua checkbox
+Private Sub ResetCheckBoxes()
+    CbxPeng1.value = False
+    CbxPeng2.value = False
+    CbxPeng3.value = False
+    CbxAn1.value = False
+    CbxAn2.value = False
+    CbxAn3.value = False
+    CbxPen1.value = False
+    CbxPen2.value = False
+    CbxPen3.value = False
+    CbxDtlk1.value = False
+    CbxDtlk2.value = False
+    CbxDtlk3.value = False
+    CbxDstj1.value = False
+    CbxDstj2.value = False
+    CbxDstj3.value = False
+    CbxDbyr1.value = False
+    CbxDbyr2.value = False
+    CbxDbyr3.value = False
+    
+    EnableAllCheckBoxes False
+End Sub
+
+Private Sub CBCari_Click()
+    Dim ws As Worksheet
+    Dim searchValue As String
+    Dim foundCell As Range
+    Dim searchRange As Range
+    Dim rowIndex As Long
+    Dim anValue As Variant
+    
+    ' Referensi ke sheet Deklarasi
+    Set ws = ThisWorkbook.Sheets("Deklarasi")
+    
+    ' Ambil nilai dari TextBox LblNAKket
+    searchValue = LblNAKket.Text
+    
+    ' Validasi input
+    If Len(searchValue) = 0 Then
+        MsgBox "Masukkan nomor yang ingin dicari!", vbExclamation, "Input Kosong"
+        Exit Sub
+    End If
+    
+    ' Tentukan range pencarian (kolom E)
+    Set searchRange = ws.Range("E7:E400000")
+    
+    ' Cari nilai di kolom E
+    Set foundCell = searchRange.Find(What:=searchValue, LookIn:=xlValues, LookAt:=xlWhole)
+    
+    ' Jika nilai ditemukan
+    If Not foundCell Is Nothing Then
+        ' Dapatkan nomor baris dari hasil pencarian
+        rowIndex = foundCell.Row
+    ' Ambil nilai dari kolom AN
+        anValue = ws.Cells(rowIndex, "AN").value
+        
+        ' Logika untuk menampilkan/menyembunyikan LblADit dan LblADitket
+        If Len(LblNAKket.Text) > 0 And Len(anValue) = 0 Then
+            ' Jika LblNAKket terisi dan sel AN kosong, sembunyikan LblADit dan LblADitket
+            LblADit.Visible = False
+            LblADitket.Visible = False
+            LblADitket.Enabled = False
+        ElseIf Len(LblNAKket.Text) > 0 And Len(anValue) > 0 Then
+            ' Jika LblNAKket terisi dan sel AK ada isinya, tampilkan LblADit dan LblADitket
+            LblADit.Visible = True
+            LblADitket.Visible = True
+            LblADitket.Enabled = True
+            'Isi nilai dari kolom AN ke LblADitket
+            LblADitket.Text = anValue
+        End If
+        
+        ' Isi label dengan data dari baris yang sesuai di sheet Deklarasi
+        LblNAkey.Caption = ws.Cells(rowIndex, "G").value ' Kolom G
+        LblTLkey.Caption = ws.Cells(rowIndex, "H").value ' Kolom H
+        LblJKkey.Caption = ws.Cells(rowIndex, "I").value ' Kolom I
+        LblCUPkey.Caption = ws.Cells(rowIndex, "C").value ' Kolom C
+        LblNTPkey.Caption = ws.Cells(rowIndex, "D").value ' Kolom D
+        
+        ' Contoh: Memformat angka dengan pemisah ribuan untuk label LblPin1key
+        numericValue = ws.Cells(rowIndex, "J").value ' Ambil nilai dari kolom J
+        If IsNumeric(numericValue) Then
+            LblPin1key.Caption = Format(numericValue, "#,##0") ' Format dengan pemisah ribuan
+            LblPin1key.Caption = Replace(Format(numericValue, "#,##0"), ".", ",")
+        Else
+            LblPin1key.Caption = "" ' Jika bukan angka, kosongkan caption
+        End If
+                
+        ' Contoh: Memformat angka dengan pemisah ribuan untuk label LblPin1key
+        numericValue = ws.Cells(rowIndex, "K").value ' Ambil nilai dari kolom K
+        If IsNumeric(numericValue) Then
+            LblSim1key.Caption = Format(numericValue, "#,##0") ' Format dengan pemisah ribuan
+            LblSim1key.Caption = Replace(Format(numericValue, "#,##0"), ".", ",")
+        Else
+            LblSim1key.Caption = "" ' Jika bukan angka, kosongkan caption
+        End If
+        
+        ' Contoh: Memformat angka dengan pemisah ribuan untuk label LblPin1key
+        numericValue = ws.Cells(rowIndex, "L").value ' Ambil nilai dari kolom L
+        If IsNumeric(numericValue) Then
+            LblSol1key.Caption = Format(numericValue, "#,##0") ' Format dengan pemisah ribuan
+            LblSol1key.Caption = Replace(Format(numericValue, "#,##0"), ".", ",")
+        Else
+            LblSol1key.Caption = "" ' Jika bukan angka, kosongkan caption
+        End If
+        
+        LblNAPket.Caption = ws.Cells(rowIndex, "AO").value ' Kolom AO
+        LblNASket.Caption = ws.Cells(rowIndex, "AP").value ' Kolom AP
+        LblNASolket.Caption = ws.Cells(rowIndex, "AQ").value ' Kolom AQ
+        
+        ' Isi TextBox dengan data dari kolom Q hingga U di sheet Deklarasi
+        With ThisWorkbook.Sheets("Deklarasi")
+            LblTIket.Text = .Cells(rowIndex, "Q").value ' Kolom Q
+            LblTMket.Text = .Cells(rowIndex, "R").value ' Kolom R
+            LblTKket.Text = .Cells(rowIndex, "S").value ' Kolom S
+            LblTKdstjket.Text = .Cells(rowIndex, "T").value ' Kolom T
+            LblTKdbyrket.Text = .Cells(rowIndex, "U").value ' Kolom U
+            
+            ' Isi CheckBox berdasarkan nilai di kolom V hingga AM di sheet Deklarasi
+            CbxPeng1.value = (.Cells(rowIndex, "V").value <> 0)
+            CbxAn1.value = (.Cells(rowIndex, "W").value <> 0)
+            CbxPen1.value = (.Cells(rowIndex, "X").value <> 0)
+            CbxDtlk1.value = (.Cells(rowIndex, "Y").value <> 0)
+            CbxDstj1.value = (.Cells(rowIndex, "Z").value <> 0)
+            CbxDbyr1.value = (.Cells(rowIndex, "AA").value <> 0)
+            CbxPeng2.value = (.Cells(rowIndex, "AB").value <> 0)
+            CbxAn2.value = (.Cells(rowIndex, "AC").value <> 0)
+            CbxPen2.value = (.Cells(rowIndex, "AD").value <> 0)
+            CbxDtlk2.value = (.Cells(rowIndex, "AE").value <> 0)
+            CbxDstj2.value = (.Cells(rowIndex, "AF").value <> 0)
+            CbxDbyr2.value = (.Cells(rowIndex, "AG").value <> 0)
+            CbxPeng3.value = (.Cells(rowIndex, "AH").value <> 0)
+            CbxAn3.value = (.Cells(rowIndex, "AI").value <> 0)
+            CbxPen3.value = (.Cells(rowIndex, "AJ").value <> 0)
+            CbxDtlk3.value = (.Cells(rowIndex, "AK").value <> 0)
+            CbxDstj3.value = (.Cells(rowIndex, "AL").value <> 0)
+            CbxDbyr3.value = (.Cells(rowIndex, "AM").value <> 0)
+        End With
+        
+               
+        ' Aktifkan LblTIket, LblTMket, LblTKket, LblTKdstjket, dan LblTKdbyrket
+        LblTIket.Enabled = True
+        LblTMket.Enabled = True
+        LblTKket.Enabled = True
+        LblTKdstjket.Enabled = True
+        LblTKdbyrket.Enabled = True
+        
+        ' Aktifkan semua checkbox
+        EnableAllCheckBoxes True
+        
+        ' Aktifkan tombol CBSimpan
+        CBSimpan.Enabled = True
+        
+        MsgBox "Data ditemukan dan berhasil dimuat!", vbInformation, "Pencarian Berhasil"
+    Else
+        ' Jika nilai tidak ditemukan
+        MsgBox "Nomor tidak ditemukan di database.", vbCritical, "Pencarian Gagal"
+        
+        ' Nonaktifkan LblTIket, LblTMket, LblTKket, LblTKdstjket, dan LblTKdbyrket
+        LblTIket.Enabled = False
+        LblTMket.Enabled = False
+        LblTKket.Enabled = False
+        LblTKdstjket.Enabled = False
+        LblTKdbyrket.Enabled = False
+        
+        ' Kosongkan isi LblTIket dan LblTMket jika ada
+        LblTIket.Text = ""
+        LblTMket.Text = ""
+        LblTKket.Text = ""
+        LblTKdstjket.Text = ""
+        LblTKdbyrket.Text = ""
+        
+        ' Kosongkan dan nonaktifkan semua checkbox
+        ResetCheckBoxes
+        
+        ' Nonaktifkan tombol CBSimpan
+        CBSimpan.Enabled = False
+    End If
+End Sub
+
+' Prosedur untuk mengaktifkan/nonaktifkan semua checkbox
+Private Sub EnableAllCheckBoxes(ByVal enable As Boolean)
+    CbxPeng1.Enabled = enable
+    CbxPeng2.Enabled = enable
+    CbxPeng3.Enabled = enable
+    CbxAn1.Enabled = enable
+    CbxAn2.Enabled = enable
+    CbxAn3.Enabled = enable
+    CbxPen1.Enabled = enable
+    CbxPen2.Enabled = enable
+    CbxPen3.Enabled = enable
+    CbxDtlk1.Enabled = enable
+    CbxDtlk2.Enabled = enable
+    CbxDtlk3.Enabled = enable
+    CbxDstj1.Enabled = enable
+    CbxDstj2.Enabled = enable
+    CbxDstj3.Enabled = enable
+    CbxDbyr1.Enabled = enable
+    CbxDbyr2.Enabled = enable
+    CbxDbyr3.Enabled = enable
+End Sub
+
+Private Sub CbxPeng1_Change()
+    If CbxPeng1.value Then
+        Peng1tul = LblPin1key.Caption
+    Else
+        Peng1tul = ""
+    End If
+End Sub
+
+Private Sub CbxPeng2_Change()
+    If CbxPeng2.value Then
+        Peng2tul = LblSim1key.Caption
+    Else
+        Peng2tul = ""
+    End If
+End Sub
+
+Private Sub CbxPeng3_Change()
+    If CbxPeng3.value Then
+        Peng3tul = LblSol1key.Caption
+    Else
+        Peng3tul = ""
+    End If
+End Sub
+
+Private Sub CbxAn1_Change()
+    If CbxAn1.value Then
+        An1tul = LblPin1key.Caption
+    Else
+        An1tul = ""
+    End If
+End Sub
+
+Private Sub CbxAn2_Change()
+    If CbxAn2.value Then
+        An2tul = LblSim1key.Caption
+    Else
+        An2tul = ""
+    End If
+End Sub
+
+Private Sub CbxAn3_Change()
+    If CbxAn3.value Then
+        An3tul = LblSol1key.Caption
+    Else
+        An3tul = ""
+    End If
+End Sub
+
+Private Sub CbxPen1_Change()
+    If CbxPen1.value Then
+        Pen1tul = LblPin1key.Caption
+    Else
+        Pen1tul = ""
+    End If
+End Sub
+
+Private Sub CbxPen2_Change()
+    If CbxPen2.value Then
+        Pen2tul = LblSim1key.Caption
+    Else
+        Pen2tul = ""
+    End If
+End Sub
+
+Private Sub CbxPen3_Change()
+    If CbxPen3.value Then
+        Pen3tul = LblSol1key.Caption
+    Else
+        Pen3tul = ""
+    End If
+End Sub
+
+Private Sub CbxDtlk1_Change()
+    If CbxDtlk1.value Then
+       Dtlk1tul = LblPin1key.Caption
+       ' Tampilkan LblADit dan LblADitket jika salah satu CbxDtlk diaktifkan
+       LblADit.Visible = True
+       LblADitket.Visible = True
+       LblADitket.Enabled = True
+    Else
+       Dtlk1tul = ""
+       ' Sembunyikan LblADit dan LblADitket jika salah satu CbxDtlk diaktifkan
+       LblADit.Visible = False
+       LblADitket.Visible = False
+       LblADitket.Enabled = False
+       LblADitket = ""
+    End If
+End Sub
+
+Private Sub CbxDtlk2_Change()
+    If CbxDtlk2.value Then
+       Dtlk2tul = LblSim1key.Caption
+       ' Tampilkan LblADit dan LblADitket jika salah satu CbxDtlk diaktifkan
+       LblADit.Visible = True
+       LblADitket.Visible = True
+       LblADitket.Enabled = True
+    Else
+       Dtlk2tul = ""
+       ' Sembunyikan LblADit dan LblADitket jika salah satu CbxDtlk diaktifkan
+       LblADit.Visible = False
+       LblADitket.Visible = False
+       LblADitket.Enabled = False
+       LblADitket = ""
+    End If
+End Sub
+
+Private Sub CbxDtlk3_Change()
+    If CbxDtlk3.value Then
+       Dtlk3tul = LblSol1key.Caption
+       ' Tampilkan LblADit dan LblADitket jika salah satu CbxDtlk diaktifkan
+       LblADit.Visible = True
+       LblADitket.Visible = True
+       LblADitket.Enabled = True
+    Else
+       Dtlk3tul = ""
+       ' Sembunyikan LblADit dan LblADitket jika salah satu CbxDtlk diaktifkan
+       LblADit.Visible = False
+       LblADitket.Visible = False
+       LblADitket.Enabled = False
+       LblADitket = ""
+    End If
+End Sub
+
+Private Sub CbxDstj1_Change()
+    If CbxDstj1.value Then
+        Dstj1tul = LblPin1key.Caption
+    Else
+        Dstj1tul = ""
+    End If
+End Sub
+
+Private Sub CbxDstj2_Change()
+    If CbxDstj2.value Then
+        Dstj2tul = LblSim1key.Caption
+    Else
+        Dstj2tul = ""
+    End If
+End Sub
+
+Private Sub CbxDstj3_Change()
+    If CbxDstj3.value Then
+        Dstj3tul = LblSol1key.Caption
+    Else
+        Dstj3tul = ""
+    End If
+End Sub
+
+Private Sub CbxDbyr1_Change()
+    If CbxDbyr1.value Then
+        Dbyr1tul = LblPin1key.Caption
+    Else
+        Dbyr1tul = ""
+    End If
+End Sub
+
+Private Sub CbxDbyr2_Change()
+    If CbxDbyr2.value Then
+        Dbyr2tul = LblSim1key.Caption
+    Else
+        Dbyr2tul = ""
+    End If
+End Sub
+
+Private Sub CbxDbyr3_Change()
+    If CbxDbyr3.value Then
+        Dbyr3tul = LblSol1key.Caption
+    Else
+        Dbyr3tul = ""
+    End If
+End Sub
+
+' Prosedur untuk mengosongkan semua kontrol di UserForm
+Private Sub ResetUserForm()
+    ' Kosongkan TextBox
+    LblNAKket = ""
+    LblTIket = ""
+    LblTMket = ""
+    LblTKket = ""
+    LblTKdstjket = ""
+    LblTKdbyrket = ""
+    Peng1tul = ""
+    Peng2tul = ""
+    Peng3tul = ""
+    An1tul = ""
+    An2tul = ""
+    An3tul = ""
+    Pen1tul = ""
+    Pen2tul = ""
+    Pen3tul = ""
+    Dtlk1tul = ""
+    Dtlk2tul = ""
+    Dtlk3tul = ""
+    Dstj1tul = ""
+    Dstj2tul = ""
+    Dstj3tul = ""
+    Dbyr1tul = ""
+    Dbyr2tul = ""
+    Dbyr3tul = ""
+    
+    ' Kosongkan Label
+    LblNAkey.Caption = ""
+    LblTLkey.Caption = ""
+    LblJKkey.Caption = ""
+    LblCUPkey.Caption = ""
+    LblNTPkey.Caption = ""
+    LblPin1key.Caption = ""
+    LblSim1key.Caption = ""
+    LblSol1key.Caption = ""
+    LblNAPket.Caption = ""
+    LblNASket.Caption = ""
+    LblNASolket.Caption = ""
+    
+    ' Reset CheckBox
+    CbxPeng1.value = False
+    CbxPeng2.value = False
+    CbxPeng3.value = False
+    CbxAn1.value = False
+    CbxAn2.value = False
+    CbxAn3.value = False
+    CbxPen1.value = False
+    CbxPen2.value = False
+    CbxPen3.value = False
+    CbxDtlk1.value = False
+    CbxDtlk2.value = False
+    CbxDtlk3.value = False
+    CbxDstj1.value = False
+    CbxDstj2.value = False
+    CbxDstj3.value = False
+    CbxDbyr1.value = False
+    CbxDbyr2.value = False
+    CbxDbyr3.value = False
+    
+    ' Nonaktifkan tombol CBSimpan
+    CBSimpan.Enabled = False
+End Sub
+
+' Fungsi untuk mengonversi nilai dengan pemisah ribuan menjadi angka biasa
+Function ConvertToNumber(ByVal value As String) As Double
+    ' Hapus pemisah ribuan (koma) dan konversi ke angka
+    If IsNumeric(Replace(value, ",", "")) Then
+        ConvertToNumber = CDbl(Replace(value, ",", ""))
+    Else
+        ConvertToNumber = 0 ' Jika nilai tidak valid, kembalikan 0
+    End If
+End Function
+
+Private Sub CBSimpan_Click()
+    Dim ws As Worksheet
+    Dim searchValue As String
+    Dim foundCell As Range
+    Dim searchRange As Range
+    Dim rowIndex As Long
+    
+    ' Referensi ke sheet Deklarasi
+    Set ws = ThisWorkbook.Sheets("Deklarasi")
+    
+    ' Ambil nilai dari TextBox LblNAKket
+    searchValue = LblNAKket.Text
+    
+    ' Validasi input
+    If Len(searchValue) = 0 Then
+        MsgBox "Masukkan nomor yang ingin dicari!", vbExclamation, "Input Kosong"
+        Exit Sub
+    End If
+    
+    ' Tentukan range pencarian (kolom E)
+    Set searchRange = ws.Range("E7:E1000000")
+    
+    ' Cari nilai di kolom E
+    Set foundCell = searchRange.Find(What:=searchValue, LookIn:=xlValues, LookAt:=xlWhole)
+    
+    ' Jika nilai ditemukan
+    If foundCell Is Nothing Then
+        MsgBox "Data tidak ditemukan. Simpan dibatalkan.", vbCritical, "Simpan Gagal"
+        Exit Sub
+    End If
+
+    ' Dapatkan nomor baris dari hasil pencarian
+      rowIndex = foundCell.Row
+        
+    ' Simpan data ke sheet Deklarasi dari kolom V hingga AN
+    With ThisWorkbook.Sheets("Deklarasi")
+        
+        ' Simpan data dari CheckBox dan TextBox terkait
+        If CbxPeng1.value Then
+            .Cells(rowIndex, "V").value = ConvertToNumber(Peng1tul)
+        Else
+            .Cells(rowIndex, "V").value = 0
+        End If
+        .Cells(rowIndex, "V").NumberFormat = "#,##0" ' Format angka dengan pemisah ribuan
+
+        If CbxAn1.value Then
+            .Cells(rowIndex, "W").value = ConvertToNumber(An1tul)
+        Else
+            .Cells(rowIndex, "W").value = 0
+        End If
+        .Cells(rowIndex, "W").NumberFormat = "#,##0"
+
+        If CbxPen1.value Then
+            .Cells(rowIndex, "X").value = ConvertToNumber(Pen1tul)
+        Else
+            .Cells(rowIndex, "X").value = 0
+        End If
+        .Cells(rowIndex, "X").NumberFormat = "#,##0"
+
+        If CbxDtlk1.value Then
+            .Cells(rowIndex, "Y").value = ConvertToNumber(Dtlk1tul)
+        Else
+            .Cells(rowIndex, "Y").value = 0
+        End If
+        .Cells(rowIndex, "Y").NumberFormat = "#,##0"
+
+        If CbxDstj1.value Then
+            .Cells(rowIndex, "Z").value = ConvertToNumber(Dstj1tul)
+        Else
+            .Cells(rowIndex, "Z").value = 0
+        End If
+        .Cells(rowIndex, "Z").NumberFormat = "#,##0"
+
+        If CbxDbyr1.value Then
+            .Cells(rowIndex, "AA").value = ConvertToNumber(Dbyr1tul)
+        Else
+            .Cells(rowIndex, "AA").value = 0
+        End If
+        .Cells(rowIndex, "AA").NumberFormat = "#,##0"
+
+        If CbxPeng2.value Then
+            .Cells(rowIndex, "AB").value = ConvertToNumber(Peng2tul)
+        Else
+            .Cells(rowIndex, "AB").value = 0
+        End If
+        .Cells(rowIndex, "AB").NumberFormat = "#,##0"
+
+        If CbxAn2.value Then
+            .Cells(rowIndex, "AC").value = ConvertToNumber(An2tul)
+        Else
+            .Cells(rowIndex, "AC").value = 0
+        End If
+        .Cells(rowIndex, "AC").NumberFormat = "#,##0"
+
+        If CbxPen2.value Then
+            .Cells(rowIndex, "AD").value = ConvertToNumber(Pen2tul)
+        Else
+            .Cells(rowIndex, "AD").value = 0
+        End If
+        .Cells(rowIndex, "AD").NumberFormat = "#,##0"
+
+        If CbxDtlk2.value Then
+            .Cells(rowIndex, "AE").value = ConvertToNumber(Dtlk2tul)
+        Else
+            .Cells(rowIndex, "AE").value = 0
+        End If
+        .Cells(rowIndex, "AE").NumberFormat = "#,##0"
+
+        If CbxDstj2.value Then
+            .Cells(rowIndex, "AF").value = ConvertToNumber(Dstj2tul)
+        Else
+            .Cells(rowIndex, "AF").value = 0
+        End If
+        .Cells(rowIndex, "AF").NumberFormat = "#,##0"
+
+        If CbxDbyr2.value Then
+            .Cells(rowIndex, "AG").value = ConvertToNumber(Dbyr2tul)
+        Else
+            .Cells(rowIndex, "AG").value = 0
+        End If
+        .Cells(rowIndex, "AG").NumberFormat = "#,##0"
+
+        If CbxPeng3.value Then
+            .Cells(rowIndex, "AH").value = ConvertToNumber(Peng3tul)
+        Else
+            .Cells(rowIndex, "AH").value = 0
+        End If
+        .Cells(rowIndex, "AH").NumberFormat = "#,##0"
+
+        If CbxAn3.value Then
+            .Cells(rowIndex, "AI").value = ConvertToNumber(An3tul)
+        Else
+            .Cells(rowIndex, "AI").value = 0
+        End If
+        .Cells(rowIndex, "AI").NumberFormat = "#,##0"
+
+        If CbxPen3.value Then
+            .Cells(rowIndex, "AJ").value = ConvertToNumber(Pen3tul)
+        Else
+            .Cells(rowIndex, "AJ").value = 0
+        End If
+        .Cells(rowIndex, "AJ").NumberFormat = "#,##0"
+
+        If CbxDtlk3.value Then
+            .Cells(rowIndex, "AK").value = ConvertToNumber(Dtlk3tul)
+        Else
+            .Cells(rowIndex, "AK").value = 0
+        End If
+        .Cells(rowIndex, "AK").NumberFormat = "#,##0"
+
+        If CbxDstj3.value Then
+            .Cells(rowIndex, "AL").value = ConvertToNumber(Dstj3tul)
+        Else
+            .Cells(rowIndex, "AL").value = 0
+        End If
+        .Cells(rowIndex, "AL").NumberFormat = "#,##0"
+
+        If CbxDbyr3.value Then
+            .Cells(rowIndex, "AM").value = ConvertToNumber(Dbyr3tul)
+        Else
+            .Cells(rowIndex, "AM").value = 0
+        End If
+        .Cells(rowIndex, "AM").NumberFormat = "#,##0"
+
+        ' Simpan untuk kolom AN (LblADitket)
+        If Len(LblADitket.Text) > 0 Then
+            ' Jika LblADitket memiliki nilai, simpan ke kolom AN
+            .Cells(rowIndex, "AN").value = LblADitket.Text
+        Else
+            ' Jika LblADitket kosong, kosongkan sel di kolom AN
+            .Cells(rowIndex, "AN").value = ""
+        End If
+    
+    ' Simpan data dari LblTIket dan LblTMket jika tidak kosong
+            If Len(LblTIket.Text) > 0 Then .Cells(rowIndex, "Q").value = LblTIket.Text
+            If Len(LblTMket.Text) > 0 Then .Cells(rowIndex, "R").value = LblTMket.Text
+            If Len(LblTKket.Text) > 0 Then .Cells(rowIndex, "S").value = LblTKket.Text
+            If Len(LblTKdstjket.Text) > 0 Then .Cells(rowIndex, "T").value = LblTKdstjket.Text
+            If Len(LblTKdbyrket.Text) > 0 Then .Cells(rowIndex, "U").value = LblTKdbyrket.Text
+    End With
+
+    MsgBox "Data berhasil disimpan ke sheet Deklarasi!", vbInforation, "Simpan Berhasil"
+    ' Kosongkan semua kontrol di UserForm
+    ResetUserForm
+        
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+    ' Sembunyikan semua label saat UserForm ditutup
+    LblDetPes.Visible = False
+    LblNAK.Visible = False
+    LblNA.Visible = False
+    LblTL.Visible = False
+    LblJK.Visible = False
+    LblCUP.Visible = False
+    LblNTP.Visible = False
+    LblNAsr.Visible = False
+    LblTI.Visible = False
+    LblTM.Visible = False
+    LblTK.Visible = False
+    LblTKdstj.Visible = False
+    LblTKdbyr.Visible = False
+    LblNAP.Visible = False
+    LblNAS.Visible = False
+    LblNASol.Visible = False
+    LblUP.Visible = False
+    LblPin1.Visible = False
+    LblSim1.Visible = False
+    LblSol1.Visible = False
+    LblSK.Visible = False
+End Sub

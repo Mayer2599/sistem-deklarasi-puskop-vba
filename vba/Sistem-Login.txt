@@ -1,0 +1,218 @@
+Option Explicit
+
+Private Sub cmdLogin_Click()
+    Static X As Integer
+    X = X + 1
+    
+    ' Batasi jumlah percobaan login
+    If X > 3 Then
+        MsgBox "Jumlah login sudah melebihi 3 kali. Aplikasi akan ditutup.", vbCritical, "Error"
+        Unload Me
+        ThisWorkbook.Close
+        Exit Sub
+    End If
+
+    ' Validasi input username dan password
+    If Len(TxtUser.Text) > 0 And Len(TxtPswd.Text) > 0 Then
+        Dim sName As String, sPass As String
+        Dim sh As Worksheet
+        Dim xResult As Variant
+        
+        Set sh = Sheets("User Login")
+        sName = Trim$(LCase(TxtUser.Text))
+        
+        ' Cari username di kolom A
+        xResult = Application.Match(sName, sh.[A3:A50], 0)
+        
+        If Not IsError(xResult) Then
+            sPass = Application.Index(sh.[B3:B50], xResult)
+            
+            ' Verifikasi password
+            If sPass = TxtPswd.Text Then
+                MsgBox "Anda Berhasil Login sebagai " & sName, vbOKOnly Or vbInformation, "Sukses"
+                
+                ' Tentukan role berdasarkan posisi baris
+                Dim role As String
+                If xResult = 1 Then
+                    role = "Coorporate" ' Baris A3
+                ElseIf xResult = 3 Then
+                    role = "Puskop" ' Baris A5
+                Else
+                    role = "CU Primer" ' Baris A7:A50
+                End If
+                
+                ' Proteksi sheet tujuan berdasarkan role
+                Call SetSheetVisibilityAndProtection(role)
+                
+                ' Aktifkan sheet tujuan berdasarkan role
+                Select Case role
+                    Case "Coorporate"
+                        Sheets(2).Activate ' Dashboard
+                    Case "Puskop"
+                        Sheets(3).Activate ' DB Sekunder
+                    Case "CU Primer"
+                        ' Aktifkan sheet DB CU
+                        Sheets("DB CU").Activate
+                        
+                        ' Terapkan filter di sheet Deklarasi berdasarkan CU Primer tertentu
+                        Dim cuName As String
+                        cuName = sh.Cells(Application.Match(sName, sh.[A7:A50], 0) + 6, "A").value ' Ambil nama CU Primer dari kolom A
+                        ' Terapkan filter di sheet Deklarasi
+                        Call ApplyFilterToDeklarasi(cuName)
+                        Call SetDropdownValue(cuName)
+                End Select
+                
+                Unload Me
+                Exit Sub
+            Else
+                MsgBox "Login ditolak! Periksa kembali kunci pengguna Anda!", vbCritical, "Gagal"
+            End If
+        Else
+            MsgBox "Login ditolak! Nama pengguna tidak ditemukan!", vbCritical, "Gagal"
+        End If
+    Else
+        MsgBox "Login ditolak! Masukkan nama pengguna dan password!", vbCritical, "Gagal"
+    End If
+End Sub
+
+
+' Prosedur untuk menyetel visibilitas dan proteksi sheet berdasarkan role
+Public Sub SetSheetVisibilityAndProtection(ByVal role As String)
+    Dim ws As Worksheet
+    Dim password As String
+    
+    ' Password untuk proteksi sheet
+    password = "PujilahTuhanselama-lamanya"
+    
+    ' Atur visibilitas sheet dan proteksi berdasarkan role
+    For Each ws In ThisWorkbook.Worksheets
+        Select Case role
+            Case "Coorporate"
+                ' Corporate bisa melihat dan mengedit semua sheet
+                ws.Visible = xlSheetVisible
+                ws.Unprotect password:=password
+            
+            Case "Puskop"
+                ' Puskop hanya bisa melihat Dashboard dan DB Sekunder (tidak bisa diedit)
+                If ws.Name = "DB Sekunder" Or ws.Name = "Deklarasi" Or ws.Name = "List TP" Then
+                    ws.Visible = xlSheetVisible
+                    ws.Protect password:=password, AllowFiltering:=True, AllowUsingPivotTables:=True, UserInterfaceOnly:=True
+                    ws.EnableSelection = xlNoSelection ' Hanya bisa melihat, tidak bisa edit
+                Else
+                    ws.Visible = xlSheetVeryHidden
+                End If
+
+        If ws.Name = "DB Sekunder" Then
+                    With ws.Range("D21")
+                        .Locked = False
+                        .FormulaHidden = False
+                    End With
+                End If
+
+            
+            Case "CU Primer"
+                ' CU Primer hanya bisa melihat DB CU dan Deklarasi (tidak bisa diedit)
+                If ws.Name = "DB CU" Or ws.Name = "Deklarasi" Or ws.Name = "List TP" Then
+                    ws.Visible = xlSheetVisible
+                    ws.Protect password:=password, AllowFiltering:=False, AllowUsingPivotTables:=True, UserInterfaceOnly:=True
+                    ws.EnableSelection = xlNoSelection ' Hanya bisa melihat, tidak bisa edit
+                    
+                    ' Nonaktifkan fitur filter di sel C6 dan dropdown di sel D21
+                    If ws.Name = "Deklarasi" Then
+                        With ws.Range("C6")
+                            .Locked = True
+                            .FormulaHidden = True
+                        End With
+                    ElseIf ws.Name = "DB CU" Then
+                        With ws.Range("D21")
+                            .Locked = True
+                            .FormulaHidden = True
+                        End With
+                    End If
+                Else
+                    ws.Visible = xlSheetVeryHidden
+                End If
+        End Select
+    Next ws
+End Sub
+
+' Prosedur untuk menerapkan filter di sheet Deklarasi
+Private Sub ApplyFilterToDeklarasi(ByVal cuName As String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Deklarasi")
+    
+    On Error Resume Next ' Tangani error jika filter tidak aktif
+    
+    ' Nonaktifkan filter jika sudah aktif
+    If ws.AutoFilterMode Then
+        If ws.FilterMode Then ws.ShowAllData ' Hapus filter jika ada
+        ws.AutoFilterMode = False ' Matikan mode filter
+    End If
+    
+    On Error GoTo 0 ' Kembalikan penanganan error ke default
+    
+    ' Terapkan filter berdasarkan CU Primer tertentu
+    With ws
+        .Range("A6:AJ6").AutoFilter Field:=3, Criteria1:=cuName ' Filter kolom C (CU Primer)
+    End With
+End Sub
+
+' Prosedur untuk mengatur nilai dropdown di sheet DB CU D21
+Private Sub SetDropdownValue(ByVal cuName As String)
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("DB CU")
+    
+    ' Pastikan sel D21 ada dan memiliki validasi data
+    On Error Resume Next
+    If Not ws.Range("D11").Validation Is Nothing Then
+        ' Atur nilai dropdown ke CU Primer yang sesuai
+        ws.Range("D11").value = cuName
+        
+        ' Kunci sel D11 agar tidak bisa diedit
+        With ws.Range("D11")
+            .Locked = True
+            .FormulaHidden = True
+        End With
+        
+        ' Proteksi worksheet untuk menerapkan penguncian
+        ws.Protect password:="PujilahTuhanselama-lamanya", AllowFiltering:=True, UserInterfaceOnly:=True
+    Else
+        MsgBox "Dropdown di sel D11 belum dikonfigurasi!", vbExclamation, "Konfigurasi Gagal"
+    End If
+    On Error GoTo 0
+End Sub
+
+Private Sub cmdCancel_Click()
+    ' Tutup workbook saat tombol Cancel ditekan
+    ThisWorkbook.Close savechanges:=True
+    Unload Me
+End Sub
+
+Private Sub Label1_Click()
+Label1.Visible = False
+TxtUser.Visible = True
+End Sub
+
+Private Sub Label2_Click()
+Label2.Visible = False
+TxtPswd.Visible = True
+End Sub
+
+Private Sub TxtPswd_Change()
+Label2.Visible = False
+TxtPswd.SetFocus
+End Sub
+
+Private Sub TxtUser_Change()
+Label1.Visible = False
+TxtUser.SetFocus
+End Sub
+
+Private Sub UserForm_QueryClose(Cancel As Integer, CloseMode As Integer)
+If CloseMode = 0 Then
+Cancel = True
+MsgBox "untuk keluar,silahkan tekan cancel !"
+End If
+Exit Sub
+Resume Next
+End Sub

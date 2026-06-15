@@ -31,4 +31,4 @@ Lisensi
 Proyek ini dilisensikan di bawah lisensi MIT — lihat file `LICENSE`.
 
 Kontak
-Pemilik/penulis: Tulang Nelson
+Pemilik/penulis: Mayer Simanjuntak

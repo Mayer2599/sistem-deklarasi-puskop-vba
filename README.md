@@ -1,5 +1,7 @@
 # Sistem Deklarasi PUSKOP (VBA)
 
+Version: 1.1
+
 Ringkasan singkat proyek Excel + VBA untuk manajemen deklarasi dan klaim pada lingkungan koperasi (PUSKOP).
 
 Fitur utama:

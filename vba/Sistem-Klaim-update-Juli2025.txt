@@ -1,0 +1,403 @@
+'Tanpa pengaturan scrollbar di kodenya
+
+Private OldValue As Double
+
+Private Sub CheckBox1_Click()
+
+End Sub
+
+Private Sub LblMNA_Click()
+    ' Ubah LblMNA menjadi TextBox untuk memasukkan nomor anggota
+    LblMNA.Visible = False ' Sembunyikan Label
+    LblNAKket.Visible = True ' Tampilkan TextBox
+    LblNAKket.Enabled = True ' Pastikan TextBox aktif
+    LblNAKket.SetFocus ' Fokus ke TextBox
+End Sub
+
+Private Sub LblNAKket_Exit(ByVal Cancel As MSForms.ReturnBoolean)
+    ' Kembalikan caption LblMNA jika TextBox kosong
+    If Len(LblNAKket.Text) = 0 Then
+        LblNAKket.Visible = False ' Sembunyikan TextBox
+        LblMNA.Visible = True ' Tampilkan Label
+        LblMNA.Caption = "Masukkan Nomor Anggota Koperasi" ' Kembalikan caption
+        
+        ' Jangan berikan fokus ke kontrol yang disembunyikan
+        ' Biarkan fokus berpindah secara alami
+    End If
+End Sub
+
+Private Sub UserForm_Activate()
+AddMinMaxButtons Me.Caption, MinButton:=False, MaxButton:=True
+End Sub
+
+' Di dalam UserForm2 (UserForm2.frm)
+
+' Subroutine untuk mengatur kontrol berdasarkan role
+Private Sub ApplyRolePermissions()
+    Dim role As String
+    role = gCurrentUserRole ' Ambil role dari variabel global
+
+    ' --- Sembunyikan Semua Kontrol yang Spesifik Role ---
+    ' (Ini adalah daftar kontrol berdasarkan deskripsi Anda)
+
+    ' Kontrol untuk Puskop dan CU Primer (Grup 1-9)
+    Dim i As Integer
+    For i = 1 To 9
+        Me.Controls("CbxPeng" & i).Visible = False
+        Me.Controls("CbxAn" & i).Visible = False
+        Me.Controls("CbxPen" & i).Visible = False
+        Me.Controls("CbxDtlk" & i).Visible = False
+        Me.Controls("CbxDstj" & i).Visible = False
+        Me.Controls("CbxDbyr" & i).Visible = False
+        Me.Controls("TBtglDstj" & i).Visible = False
+        Me.Controls("TBtglDbyr" & i).Visible = False
+        Me.Controls("TBAlDtlk" & i).Visible = False
+        Me.Controls("LblUP" & i).Visible = False
+        Me.Controls("Lbltgl" & i).Visible = False
+        Me.Controls("LblAl" & i).Visible = False
+        Me.Controls("Lbltglhtm" & i).Visible = False
+        Me.Controls("LblAlhtm" & i).Visible = False
+        Me.Controls("Peng" & i & "tul").Visible = False
+        Me.Controls("An" & i & "tul").Visible = False
+        Me.Controls("Pen" & i & "tul").Visible = False
+        Me.Controls("Dtlk" & i & "tul").Visible = False
+        Me.Controls("Dstj" & i & "tul").Visible = False
+        Me.Controls("Dbyr" & i & "tul").Visible = False
+    Next i
+
+    ' Sembunyikan label hasil pencarian
+    Dim j As Integer
+    For j = 1 To 3
+        Me.Controls("LblNAP" & j).Visible = False
+        Me.Controls("LblNAS" & j).Visible = False
+        Me.Controls("LblNASol" & j).Visible = False
+        Me.Controls("LblNAPkey" & j).Visible = False
+        Me.Controls("LblNASkey" & j).Visible = False
+        Me.Controls("LblNASolkey" & j).Visible = False
+        Me.Controls("LblNASolkey" & j).Visible = False
+        Me.Controls("LblNAsr" & j).Visible = False
+    Next j
+
+    Me.LblSK.Visible = False
+    Me.CBSimpan2.Visible = False
+
+    ' Sembunyikan kontrol CU Primer
+    Me.LblNAkey.Visible = False
+    Me.LblTLkey.Visible = False
+    Me.LblJKkey.Visible = False
+    Me.LblCUPkey.Visible = False
+    Me.LblNTPkey.Visible = False
+    Me.LblTIket.Visible = False
+    Me.LblTMket.Visible = False
+    Me.LblTKket.Visible = False
+    Me.OBMDDR.Visible = False
+    Me.OBMDDRS.Visible = False
+    Me.OBMDkK.Visible = False
+    Me.CBFka.Visible = False
+    Me.CBKk.Visible = False
+    Me.CBIp.Visible = False
+    Me.CBFCkaCUP.Visible = False
+    Me.CBFCsspt.Visible = False
+    Me.CBFCit.Visible = False
+    Me.CBFCiw.Visible = False
+    Me.CBSKk.Visible = False
+    Me.FZN.Visible = False
+    Me.CBSk.Visible = False
+    Me.CBSKkB.Visible = False
+    Me.CBSimpan.Visible = True
+
+    ' --- Tampilkan Kontrol Berdasarkan Role ---
+    Select Case role
+        Case "Coorporate"
+            ' --- Untuk Coorporate, TAMPILKAN SEMUA kontrol ---
+            
+            ' Tampilkan kontrol grup 1-9
+            For i = 1 To 9
+                Me.Controls("CbxPeng" & i).Visible = True
+                Me.Controls("CbxAn" & i).Visible = True
+                Me.Controls("CbxPen" & i).Visible = True
+                Me.Controls("CbxDtlk" & i).Visible = True
+                Me.Controls("CbxDstj" & i).Visible = True
+                Me.Controls("CbxDbyr" & i).Visible = True
+                Me.Controls("TBtglDstj" & i).Visible = True
+                Me.Controls("TBtglDbyr" & i).Visible = True
+                Me.Controls("TBAlDtlk" & i).Visible = True
+                Me.Controls("LblUP" & i).Visible = True
+                Me.Controls("Lbltgl" & i).Visible = True
+                Me.Controls("LblAl" & i).Visible = True
+                Me.Controls("Lbltglhtm" & i).Visible = True
+                Me.Controls("LblAlhtm" & i).Visible = True
+                Me.Controls("Peng" & i & "tul").Visible = True
+                Me.Controls("An" & i & "tul").Visible = True
+                Me.Controls("Pen" & i & "tul").Visible = True
+                Me.Controls("Dtlk" & i & "tul").Visible = True
+                Me.Controls("Dstj" & i & "tul").Visible = True
+                Me.Controls("Dbyr" & i & "tul").Visible = True
+            Next i
+
+            ' Tampilkan label hasil pencarian
+            For j = 1 To 3
+                Me.Controls("LblNAP" & j).Visible = True
+                Me.Controls("LblNAS" & j).Visible = True
+                Me.Controls("LblNASol" & j).Visible = True
+                Me.Controls("LblNAPkey" & j).Visible = True
+                Me.Controls("LblNASkey" & j).Visible = True
+                Me.Controls("LblNASolkey" & j).Visible = True
+                Me.Controls("LblNAsr" & j).Visible = True
+            Next j
+            
+            Me.LblSK.Visible = True
+            Me.CBSimpan2.Visible = True
+
+            Me.LblNAkey.Visible = True
+            Me.LblTLkey.Visible = True
+            Me.LblJKkey.Visible = True
+            Me.LblCUPkey.Visible = True
+            Me.LblNTPkey.Visible = True
+            Me.LblTIket.Visible = True
+            Me.LblTMket.Visible = True
+            Me.LblTKket.Visible = True
+            Me.OBMDDR.Visible = True
+            Me.OBMDDRS.Visible = True
+            Me.OBMDkK.Visible = True
+            Me.CBFka.Visible = False
+            Me.CBKk.Visible = False
+            Me.CBIp.Visible = False
+            Me.CBFCkaCUP.Visible = False
+            Me.CBFCsspt.Visible = False
+            Me.CBFCit.Visible = False
+            Me.CBFCiw.Visible = False
+            Me.CBSKk.Visible = False
+            Me.FZN.Visible = False
+            Me.CBSk.Visible = False
+            Me.CBSKkB.Visible = False
+            Me.CBSimpan.Visible = True
+        EnableCheckBoxGroupsBasedOnLabels
+            
+        Case "Puskop"
+            ' Tampilkan kontrol CU Primer
+            Me.LblNAkey.Visible = True
+            Me.LblTLkey.Visible = True
+            Me.LblJKkey.Visible = True
+            Me.LblCUPkey.Visible = True
+            Me.LblNTPkey.Visible = True
+            Me.LblTIket.Visible = True
+            Me.LblTMket.Visible = True
+            Me.LblTKket.Visible = True
+            Me.OBMDDR.Visible = True
+            Me.OBMDDRS.Visible = True
+            Me.OBMDkK.Visible = True
+            
+            Me.CBSimpan.Visible = True
+
+         Case "CU Primer"
+            ' Tampilkan kontrol CU Primer
+            Me.LblNAkey.Visible = True
+            Me.LblTLkey.Visible = True
+            Me.LblJKkey.Visible = True
+            Me.LblCUPkey.Visible = True
+            Me.LblNTPkey.Visible = True
+            Me.LblTIket.Visible = True
+            Me.LblTMket.Visible = True
+            Me.LblTKket.Visible = True
+            Me.OBMDDR.Visible = True
+            Me.OBMDDRS.Visible = True
+            Me.OBMDkK.Visible = True
+            
+            Me.CBSimpan.Visible = True
+
+        Case Else
+            ' Role tidak dikenali
+            MsgBox "Role pengguna tidak dikenali: " & role & ". Silakan login kembali.", vbExclamation
+    End Select
+    
+    ' Catatan Penting:
+    ' Saat data dimuat (misalnya dalam CBCari_Click), beberapa kontrol mungkin
+    ' perlu diaktifkan berdasarkan data yang ada (seperti TBtglDstj jika CbxDstj.Value = True).
+    ' Logika ini biasanya sudah ada dalam event CbxDstjX_Change.
+    ' Pastikan event-event tersebut tetap dipicu atau logikanya tetap berjalan
+    ' setelah kontrol diaktifkan/disabled oleh ApplyRolePermissions.
+End Sub
+
+Private Sub UserForm_Initialize()
+
+' Menampilkan semua label saat UserForm dimunculkan
+    LblDetPes.Visible = True
+    LblNAK.Visible = True
+    LblNA.Visible = True
+    LblTL.Visible = True
+    LblJK.Visible = True
+    LblCUP.Visible = True
+    LblNTP.Visible = True
+    LblTI.Visible = True
+    LblTM.Visible = True
+    LblTK.Visible = True
+    LblUP.Visible = True
+    LblPin1.Visible = True
+    LblSim1.Visible = True
+    LblSol1.Visible = True
+    LblSK.Visible = True
+    LblDetPes.Visible = True
+    
+    ' Sembunyikan CheckBox terkait OBMDDR, OBMDDRS, dan OBMDkK
+    CBFka.Visible = False
+    CBKk.Visible = False
+    CBIp.Visible = False
+    CBFCkaCUP.Visible = False
+    CBFCsspt.Visible = False
+    CBFCit.Visible = False
+    CBFCiw.Visible = False
+    CBSKk.Visible = False
+    FZN.Visible = False
+    CBSk.Visible = False
+    CBSKkB.Visible = False
+    OBMDDR.Enabled = False
+    OBMDDRS.Enabled = False
+    OBMDkK.Enabled = False
+    
+    'Hanya LblNAKket yang dapat diaktifkan
+    LblNAKket.Enabled = True
+    LblMNA.Enabled = True
+    LblTIket.Enabled = False
+    LblTMket.Enabled = False
+    LblTKket.Enabled = False
+    
+    ' Awalnya, nonaktifkan semua CheckBox untuk Case 1 hingga Case 9
+    EnableAllCheckBoxes False
+    
+    ' Kosongkan semua TextBox
+    LblNAKket.Text = ""
+    LblTIket.Text = ""
+    LblTMket.Text = ""
+    LblTKket.Text = ""
+    
+    ' Kosongkan semua Label hasil pencarian
+    LblNAkey.Caption = ""
+    LblTLkey.Caption = ""
+    LblJKkey.Caption = ""
+    LblCUPkey.Caption = ""
+    LblNTPkey.Caption = ""
+    LblPin1key.Caption = ""
+    LblSim1key.Caption = ""
+    LblSol1key.Caption = ""
+    
+    ' Menampilkan semua label saat UserForm dimunculkan
+    Dim ctrl As Control
+    For Each ctrl In Me.Controls
+        If TypeName(ctrl) = "Label" Then
+            ctrl.Visible = True
+        End If
+    Next ctrl
+
+    ' Nonaktifkan semua checkbox grup CbxPeng (tambahan baru)
+    EnablePengCheckBoxes False
+    
+    ' Kosongkan semua Label hasil pencarian
+    ResetAllLabels
+    
+    ' Kosongkan dan nonaktifkan semua checkbox
+    ResetCheckBoxes
+
+    ' Nonaktifkan semua checkbox grup (pastikan logika grup diterapkan)
+    EnableAllCheckBoxes False
+
+    ' Nonaktifkan semua TextBox terkait
+    EnableRelatedTextBoxes False
+    
+    ' Nonaktifkan tombol CBSimpan
+    CBSimpan.Enabled = False
+    
+    Call ApplyRolePermissions
+        
+End Sub
+
+Private Sub CBCari_Click()
+    Dim ws As Worksheet
+    Dim searchValue As String
+    Dim foundCell As Range
+    Dim searchRange As Range
+    Dim rowIndex As Long
+    
+    ' Referensi ke sheet Deklarasi
+    Set ws = ThisWorkbook.Sheets("Deklarasi")
+    
+    ' Ambil nilai dari TextBox LblNAKket
+    searchValue = LblNAKket.Text
+    
+    ' Validasi input
+    If Len(searchValue) = 0 Then
+        MsgBox "Masukkan nomor anggota koperasi!", vbExclamation, "Input Kosong"
+        Exit Sub
+    End If
+    
+    ' Reset semua kontrol sebelum memuat data baru
+    ResetAllControls
+    
+    ' Tentukan range pencarian (kolom E)
+    Set searchRange = ws.Range("E7:E800000")
+    
+    ' Cari nilai di kolom E
+    Set foundCell = searchRange.Find(What:=searchValue, LookIn:=xlValues, LookAt:=xlWhole)
+    
+    ' Jika nilai ditemukan
+    If Not foundCell Is Nothing Then
+        ' Dapatkan nomor baris dari hasil pencarian
+        rowIndex = foundCell.Row
+        
+        ' Muat data dari sheet "Deklarasi" ke UserForm
+        With ws
+            ' Isi label dengan data dari baris yang sesuai di sheet Deklarasi
+            LblNAkey.Caption = .Cells(rowIndex, "G").Value ' Kolom G
+            LblTLkey.Caption = .Cells(rowIndex, "H").Value ' Kolom H
+            LblJKkey.Caption = .Cells(rowIndex, "I").Value ' Kolom I
+            LblCUPkey.Caption = .Cells(rowIndex, "C").Value ' Kolom C
+            LblNTPkey.Caption = .Cells(rowIndex, "D").Value ' Kolom D
+            
+            ' Hitung total pinjaman, simpanan, dan solduka
+            LblPin1key.Caption = Application.WorksheetFunction.SumIfs(.Range("M7:M800000"), .Range("J7:J800000"), "Pinjaman", .Range("E7:E800000"), searchValue)
+            LblSim1key.Caption = Application.WorksheetFunction.SumIfs(.Range("M7:M800000"), .Range("J7:J800000"), "Simpanan", .Range("E7:E800000"), searchValue)
+            LblSol1key.Caption = Application.WorksheetFunction.SumIfs(.Range("M7:M800000"), .Range("J7:J800000"), "Solduka", .Range("E7:E800000"), searchValue)
+            
+            ' Isi TextBox dengan data dari kolom P, Q, R di sheet Deklarasi
+            If .Cells(rowIndex, "P").Value <> "" Then
+                LblTIket.Text = .Cells(rowIndex, "P").Value ' Kolom P
+            Else
+                LblTIket.Text = ""
+            End If
+            
+            If .Cells(rowIndex, "Q").Value <> "" Then
+                LblTMket.Text = .Cells(rowIndex, "Q").Value ' Kolom Q
+            Else
+                LblTMket.Text = ""
+            End If
+            
+            If .Cells(rowIndex, "R").Value <> "" Then
+                LblTKket.Text = .Cells(rowIndex, "R").Value ' Kolom R
+            Else
+                LblTKket.Text = ""
+            End If
+        End With
+        
+        ' Reset CheckBox terkait OBMDDR, OBMDDRS, dan OBMDkK
+        CBFka.Visible = False
+        CBKk.Visible = False
+        CBIp.Visible = False
+        CBFCkaCUP.Visible = False
+        CBFCsspt.Visible = False
+        CBFCit.Visible = False
+        CBFCiw.Visible = False
+        CBSKk.Visible = False
+        FZN.Visible = False
+        CBSk.Visible = False
+        CBSKkB.Visible = False
+
+        ' Aktifkan CheckBox grup berdasarkan caption label
+        EnableCheckBoxGroupsBasedOnLabels
+
+        ' Aktifkan semua tools yang dapat diaktifkan
+        LblTIket.Enabled = True
+        LblTMket.Enabled = True
+        LblTKket.Enabled = True
+
+End If
+' (file truncated for repository copy)
